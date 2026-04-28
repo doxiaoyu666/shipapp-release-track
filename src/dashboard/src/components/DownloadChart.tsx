@@ -15,17 +15,17 @@ export function DownloadChart({ data }: Props) {
         <XAxis
           dataKey="date"
           tickFormatter={(d: string) => d.slice(5)}
-          stroke="#444"
-          tick={{ fill: '#666', fontSize: 11 }}
+          stroke="#ccc"
+          tick={{ fill: '#86868b', fontSize: 11 }}
         />
-        <YAxis stroke="#444" tick={{ fill: '#666', fontSize: 11 }} />
+        <YAxis stroke="#ccc" tick={{ fill: '#86868b', fontSize: 11 }} />
         <Tooltip
-          contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 8 }}
-          labelStyle={{ color: '#999' }}
+          contentStyle={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8 }}
+          labelStyle={{ color: '#1d1d1f' }}
         />
-        <Line type="monotone" dataKey="downloads" name="Downloads" stroke="#22c55e" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey="pageViews" name="Page Views" stroke="#3b82f6" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey="impressions" name="Impressions" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="impressions" name="Impressions" stroke="#007aff" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="pageViews" name="Page Views" stroke="#5856d6" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="downloads" name="Downloads" stroke="#34c759" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );

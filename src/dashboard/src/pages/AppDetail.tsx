@@ -16,6 +16,12 @@ interface CrashSig {
   collectedAt: string;
 }
 
+function weightClass(w: number): string {
+  if (w >= 1) return 'weight-high';
+  if (w >= 0.3) return 'weight-medium';
+  return 'weight-low';
+}
+
 export function AppDetail({ appId, appName, onBack }: Props) {
   const [crashTrend, setCrashTrend] = useState<any[]>([]);
   const [downloadTrend, setDownloadTrend] = useState<any[]>([]);
@@ -35,9 +41,17 @@ export function AppDetail({ appId, appName, onBack }: Props) {
       .then((d) => setCrashes(d.data || []));
   }, [appId]);
 
+  // Group crashes by build
+  const buildGroups = new Map<string, CrashSig[]>();
+  for (const c of crashes) {
+    const list = buildGroups.get(c.build) || [];
+    list.push(c);
+    buildGroups.set(c.build, list);
+  }
+
   return (
     <div>
-      <button className="back-btn" onClick={onBack}>← Back</button>
+      <button className="back-btn" onClick={onBack}>← Back to Overview</button>
       <div className="detail-header">
         <h2>{appName}</h2>
       </div>
@@ -48,36 +62,48 @@ export function AppDetail({ appId, appName, onBack }: Props) {
           <CrashChart data={crashTrend} />
         </div>
         <div className="chart-card">
-          <h3>Downloads (30 days)</h3>
+          <h3>App Store Metrics (30 days)</h3>
           <DownloadChart data={downloadTrend} />
         </div>
       </div>
 
       <div className="chart-card">
-        <h3>Crash Signatures</h3>
+        <h3>Crash Signatures by Build</h3>
         {crashes.length === 0 ? (
           <div className="empty-state">No crash data collected yet.</div>
         ) : (
-          <table className="crash-table">
-            <thead>
-              <tr>
-                <th>Signature</th>
-                <th>Build</th>
-                <th>Weight</th>
-                <th>Collected</th>
-              </tr>
-            </thead>
-            <tbody>
-              {crashes.slice(0, 20).map((c) => (
-                <tr key={c.signatureId}>
-                  <td>{c.signature}</td>
-                  <td>{c.build}</td>
-                  <td>{c.weight.toFixed(2)}</td>
-                  <td>{new Date(c.collectedAt).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            {Array.from(buildGroups.entries()).map(([build, sigs]) => (
+              <div key={build} style={{ marginBottom: 24 }}>
+                <div style={{ marginBottom: 8 }}>
+                  <span className="build-badge">Build {build}</span>
+                  <span style={{ marginLeft: 8, fontSize: 13, color: '#86868b' }}>
+                    {sigs.length} signature{sigs.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <table className="crash-table">
+                  <thead>
+                    <tr>
+                      <th>Signature</th>
+                      <th>Weight</th>
+                      <th>Impact</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sigs.map((c) => (
+                      <tr key={c.signatureId}>
+                        <td>{c.signature}</td>
+                        <td className={weightClass(c.weight)}>{c.weight.toFixed(2)}</td>
+                        <td>
+                          {c.weight >= 1 ? '🔴 High' : c.weight >= 0.3 ? '🟡 Medium' : '🟢 Low'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </>
         )}
       </div>
     </div>

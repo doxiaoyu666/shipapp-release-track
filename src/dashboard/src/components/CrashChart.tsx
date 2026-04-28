@@ -15,16 +15,16 @@ export function CrashChart({ data }: Props) {
         <XAxis
           dataKey="date"
           tickFormatter={(d: string) => d.slice(5)}
-          stroke="#444"
-          tick={{ fill: '#666', fontSize: 11 }}
+          stroke="#ccc"
+          tick={{ fill: '#86868b', fontSize: 11 }}
         />
-        <YAxis stroke="#444" tick={{ fill: '#666', fontSize: 11 }} />
+        <YAxis stroke="#ccc" tick={{ fill: '#86868b', fontSize: 11 }} />
         <Tooltip
-          contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 8 }}
-          labelStyle={{ color: '#999' }}
+          contentStyle={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8 }}
+          labelStyle={{ color: '#1d1d1f' }}
         />
-        <Line type="monotone" dataKey="totalWeight" name="Weight" stroke="#ef4444" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey="signatureCount" name="Signatures" stroke="#f97316" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="totalWeight" name="Weight" stroke="#ff3b30" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="signatureCount" name="Signatures" stroke="#ff9500" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );
