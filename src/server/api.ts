@@ -2,6 +2,7 @@ import {
   getAllApps,
   getCrashSignatures,
   getCrashTrend,
+  getCrashByBuild,
   getDownloadTrend,
   getReleases,
 } from '../core/db';
@@ -19,7 +20,14 @@ export async function handleApiRequest(
   // GET /api/apps/:id/crashes
   const crashMatch = pathname.match(/^\/api\/apps\/([^/]+)\/crashes$/);
   if (crashMatch) {
-    return { success: true, data: getCrashSignatures(crashMatch[1]) };
+    const appId = crashMatch[1];
+    return {
+      success: true,
+      data: {
+        signatures: getCrashSignatures(appId),
+        byBuild: getCrashByBuild(appId),
+      },
+    };
   }
 
   // GET /api/apps/:id/crashes/trend

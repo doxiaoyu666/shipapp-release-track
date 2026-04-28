@@ -108,8 +108,23 @@ export function getCrashSignatures(appId: string): CrashSignature[] {
     SELECT app_id as appId, build, signature_id as signatureId, signature, weight, collected_at as collectedAt
     FROM crash_signatures
     WHERE app_id = ?
-    ORDER BY weight DESC
+    ORDER BY build DESC, weight DESC
   `).all(appId) as CrashSignature[];
+}
+
+/**
+ * Get crash summary per build (newest first).
+ */
+export function getCrashByBuild(appId: string): { build: string; totalWeight: number; signatureCount: number }[] {
+  return getDb().prepare(`
+    SELECT build,
+           SUM(weight) as totalWeight,
+           COUNT(DISTINCT signature_id) as signatureCount
+    FROM crash_signatures
+    WHERE app_id = ?
+    GROUP BY build
+    ORDER BY build DESC
+  `).all(appId) as any[];
 }
 
 // --- Metrics ---
