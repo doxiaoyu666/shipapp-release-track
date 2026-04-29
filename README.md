@@ -1,44 +1,82 @@
 # @shipapp/release-track
 
-Post-release tracking dashboard — crash signatures, downloads, and version health for iOS apps.
+Post-release tracking dashboard — crashes, downloads, customer reviews, and version health for iOS apps.
 
-发版后追踪看板——crash 签名、下载量、版本健康状态。
+发版后追踪看板——crash 签名、下载量、用户评论、版本健康状态。
 
 ## How It Works | 工作原理
 
 ```
 App Store Connect API    →    SQLite DB    →    Local Dashboard
-  (crash + downloads)        (历史数据)        (图表 + 分析)
+  (crash + analytics       (历史数据)        (图表 + 评论)
+   + sales + reviews)
 ```
-
-## Prerequisites | 前提条件
-
-- Node.js 18+
-- ASC API credentials (`~/.shipapp/credentials.json`, shared with @shipapp/metadata)
 
 ## Setup | 安装
 
+### 1. Install | 安装依赖
+
 ```bash
-git clone https://github.com/doxiaoyu666/shipapp-release-track.git ~/git/shipapp-release-track
-cd ~/git/shipapp-release-track
+git clone https://github.com/doxiaoyu666/shipapp-release-track.git
+cd shipapp-release-track
 npm install
 cd src/dashboard && npm install && cd ../..
 npm run build
 ```
 
+### 2. Create ASC API Key | 创建 API 密钥
+
+1. Go to [App Store Connect → Users and Access → Integrations → Keys](https://appstoreconnect.apple.com/access/integrations/api)
+2. Click **Generate API Key**
+3. Select **Admin** or **App Manager** role
+4. Download the `.p8` file and note your **Key ID** and **Issuer ID**
+
+### 3. Configure Credentials | 配置凭证
+
+Create `~/.shipapp/credentials.json`:
+
+```json
+{
+  "keyId": "YOUR_KEY_ID",
+  "issuerId": "YOUR_ISSUER_ID",
+  "privateKeyPath": "/path/to/AuthKey_XXXXXXXX.p8"
+}
+```
+
+### 4. (Optional) Add Vendor Number for Precise Sales Data | 添加 Vendor Number
+
+The Sales & Trends API provides precise download and revenue data (transaction-level accuracy).
+
+1. Go to [App Store Connect](https://appstoreconnect.apple.com) → **Payments and Financial Reports**
+2. Your **Vendor Number** is displayed on the page (8-digit number)
+3. Add it to your credentials:
+
+```json
+{
+  "keyId": "YOUR_KEY_ID",
+  "issuerId": "YOUR_ISSUER_ID",
+  "privateKeyPath": "/path/to/AuthKey_XXXXXXXX.p8",
+  "vendorNumber": "12345678"
+}
+```
+
 ## Usage | 使用方式
 
-### CLI
+### Collect Data | 采集数据
 
 ```bash
-# Collect crash + download data
-shipapp-release-track collect --app FoTime
+# Collect all data for an app (crashes, analytics, sales, reviews)
+npx shipapp-release-track collect --app "Your App Name"
 
-# Open dashboard
-shipapp-release-track serve
+# Specify collection period
+npx shipapp-release-track collect --app "Your App Name" --days 30
+```
 
-# Record release baseline
-shipapp-release-track snapshot --app FoTime --version 1.3.0
+### View Dashboard | 查看看板
+
+```bash
+npx shipapp-release-track serve
+# Open http://localhost:3457
 ```
 
 ### Claude Code Skill
@@ -49,22 +87,26 @@ shipapp-release-track snapshot --app FoTime --version 1.3.0
 
 AI will collect data, analyze crash/download trends, and generate an actionable report.
 
-### Dashboard
-
-After running `collect`, open the dashboard with `serve`:
-
-- **Overview**: All tracked apps with 7-day crash summary
-- **App Detail**: Crash trend chart, download trend chart, crash signature table
-
 ## Data Sources | 数据来源
 
-| Data | Source | API |
-|------|--------|-----|
-| Crash Signatures | ASC Diagnostic Signatures | `/builds/{id}/diagnosticSignatures` |
-| Downloads | ASC Analytics Reports | `/analyticsReportRequests` |
-| Impressions | ASC Analytics Reports | `/analyticsReportRequests` |
+| Data | Source | Accuracy | API |
+|------|--------|----------|-----|
+| Customer Reviews | ASC Customer Reviews API | Exact | `/apps/{id}/customerReviews` |
+| Crash Signatures | ASC Diagnostic Signatures | Exact | `/builds/{id}/diagnosticSignatures` |
+| Downloads (Sales) | Sales & Trends API | Exact (requires vendorNumber) | `/salesReports` |
+| Downloads (Analytics) | ASC Analytics Reports | Sampled, ~2 week delay | `/analyticsReportRequests` |
+| Impressions / Sessions | ASC Analytics Reports | Sampled, ~2 week delay | `/analyticsReportRequests` |
 
-All data stored locally in `~/.shipapp/release-track.db` (SQLite).
+All data stored locally in `~/.shipapp/release-track.db` (SQLite). No data is sent to any third-party service.
+
+## Dashboard Features | 看板功能
+
+- **Customer Reviews** — All reviews with ratings, text, territory, and developer responses
+- **Crash Trends** — Crash signature tracking by build
+- **Download Trends** — First-time downloads, redownloads, updates
+- **App Store Engagement** — Impressions, page views (sampled)
+- **Traffic Sources** — Download source breakdown
+- **Sessions & Retention** — Active devices, installations vs deletions
 
 ## Part of ShipApp | ShipApp 工具套件
 

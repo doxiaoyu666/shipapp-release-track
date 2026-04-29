@@ -5,6 +5,9 @@ import {
   getCrashByBuild,
   getDownloadTrend,
   getReleases,
+  getSourceBreakdown,
+  getReviews,
+  getReviewStats,
 } from '../core/db';
 
 export async function handleApiRequest(
@@ -37,11 +40,40 @@ export async function handleApiRequest(
     return { success: true, data: getCrashTrend(crashTrendMatch[1], days) };
   }
 
-  // GET /api/apps/:id/downloads/trend
+  // GET /api/apps/:id/downloads/trend — full metrics trend
   const dlTrendMatch = pathname.match(/^\/api\/apps\/([^/]+)\/downloads\/trend$/);
   if (dlTrendMatch) {
     const days = parseInt(params.get('days') || '30', 10);
     return { success: true, data: getDownloadTrend(dlTrendMatch[1], days) };
+  }
+
+  // GET /api/apps/:id/sources — download source breakdown
+  const sourcesMatch = pathname.match(/^\/api\/apps\/([^/]+)\/sources$/);
+  if (sourcesMatch) {
+    const days = parseInt(params.get('days') || '30', 10);
+    const raw = getSourceBreakdown(sourcesMatch[1], days);
+    // Aggregate by sourceType for pie chart
+    const bySource: Record<string, number> = {};
+    for (const r of raw) {
+      const key = r.sourceType || 'Unknown';
+      bySource[key] = (bySource[key] || 0) + r.counts;
+    }
+    return {
+      success: true,
+      data: {
+        bySource: Object.entries(bySource).map(([name, value]) => ({ name, value })),
+        detailed: raw,
+      },
+    };
+  }
+
+  // GET /api/apps/:id/reviews
+  const reviewsMatch = pathname.match(/^\/api\/apps\/([^/]+)\/reviews$/);
+  if (reviewsMatch) {
+    const limit = parseInt(params.get('limit') || '100', 10);
+    const reviews = getReviews(reviewsMatch[1], limit);
+    const stats = getReviewStats(reviewsMatch[1]);
+    return { success: true, data: { reviews, stats } };
   }
 
   // GET /api/apps/:id/releases

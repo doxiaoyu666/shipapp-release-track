@@ -1,12 +1,12 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface Props {
-  data: { date: string; downloads: number; redownloads: number; updates: number; pageViews: number; impressions: number }[];
+  data: { date: string; installations: number; deletions: number }[];
 }
 
-export function DownloadChart({ data }: Props) {
+export function RetentionChart({ data }: Props) {
   if (data.length === 0) {
-    return <div className="empty-state">No download data.</div>;
+    return <div className="empty-state">No retention data.</div>;
   }
 
   return (
@@ -23,9 +23,8 @@ export function DownloadChart({ data }: Props) {
           contentStyle={{ background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8 }}
           labelStyle={{ color: '#1d1d1f' }}
         />
-        <Line type="monotone" dataKey="downloads" name="First Downloads" stroke="#34c759" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey="redownloads" name="Redownloads" stroke="#ff9500" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey="updates" name="Updates" stroke="#5856d6" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
+        <Line type="monotone" dataKey="installations" name="Installations" stroke="#34c759" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="deletions" name="Deletions" stroke="#ff3b30" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );

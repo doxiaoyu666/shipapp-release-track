@@ -2,6 +2,7 @@ export interface ShipAppCredentials {
   keyId: string;
   issuerId: string;
   privateKeyPath: string;
+  vendorNumber?: string;
 }
 
 export interface AppInfo {
@@ -24,8 +25,18 @@ export interface DailyMetrics {
   date: string;
   territory: string;
   downloads: number;
+  redownloads: number;
+  updates: number;
   pageViews: number;
   impressions: number;
+  sessions: number;
+  activeDevices: number;
+  installations: number;
+  deletions: number;
+  proceeds: number;
+  units: number;
+  webImpressions: number;
+  webTaps: number;
 }
 
 export interface Release {
@@ -44,6 +55,36 @@ export interface CrashTrend {
 export interface DownloadTrend {
   date: string;
   downloads: number;
+  redownloads: number;
+  updates: number;
   pageViews: number;
   impressions: number;
+  sessions: number;
+  activeDevices: number;
+  installations: number;
+  deletions: number;
+  proceeds: number;
+  units: number;
+  webImpressions: number;
+  webTaps: number;
+}
+
+export interface SourceBreakdown {
+  date: string;
+  sourceType: string;
+  downloadType: string;
+  counts: number;
+}
+
+export interface CustomerReview {
+  reviewId: string;
+  appId: string;
+  rating: number;
+  title: string;
+  body: string;
+  reviewerNickname: string;
+  territory: string;
+  createdDate: string;
+  responseBody: string | null;
+  responseDate: string | null;
 }
